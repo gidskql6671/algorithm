@@ -1,74 +1,71 @@
-#include <cstdio>
-#include <cstring>
-#include <stack>
-#include <queue>
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
+#define INF 987654321
+typedef long long ll;
 using namespace std;
 
-#define MAX 101
 
-int N, Count, count_max, H;
-int map[MAX][MAX];
-bool check[MAX][MAX];
+int n;
+int dy[] = {0, 1, 0, -1}, dx[] = {1, 0, -1, 0};
+int board[101][101];
 
-int dx[4] = { 1,0,-1,0 };
-int dy[4] = { 0,1,0,-1 };
+bool isInside(int y, int x) {
+  return 0 <= y and y < n and 0 <= x and x < n;
+}
 
-void bfs(int x, int y) {
-	queue<pair<int, int>> q;
-	if (!check[x][y] && map[x][y] > H) {
-		check[x][y] = true;
-		q.push(make_pair(x, y));
-		Count++;
-	}
+void bfs(bool visited[101][101], int sy, int sx, int height) {
+  queue<pair<int, int>> q;
+  q.push({sy, sx});
+  visited[sy][sx] = true;
 
-	while (!q.empty()) {
-		int x = q.front().first;
-		int y = q.front().second;
+  while(not q.empty()) {
+    int y = q.front().first;
+    int x = q.front().second;
+    q.pop();
 
-		q.pop();
+    for(int i = 0; i < 4; i++) {
+      int ny = y + dy[i];
+      int nx = x + dx[i];
 
-		for (int i = 0; i < 4; i++) {
-			int nx = x + dx[i];
-			int ny = y + dy[i];
-
-			if (1 <= nx && nx <= N && 1 <= ny && ny <= N) {
-				if (!check[nx][ny] && map[nx][ny] > H) {
-					check[nx][ny] = true;
-					q.push(make_pair(nx, ny));
-				}
-			}
-		}
-	}
+      if (isInside(ny, nx) and board[ny][nx] > height and not visited[ny][nx]) {
+        q.push({ny, nx});
+        visited[ny][nx] = true;
+      }
+    }
+  }
 }
 
 int main() {
-	int max = 0;
-	cin >> N;
+  ios::sync_with_stdio(false);
+  cin.tie(NULL);
+  cout.tie(NULL);
 
-	for (int i = 1; i <= N; i++)
-		for (int j = 1; j <= N; j++) {
-			scanf("%d", &map[i][j]);
-			if (max < map[i][j])
-				max = map[i][j];
-		}
 
-	for (; H <= max; H++) {
-		for (int i = 1; i <= N; i++) 
-			for (int j = 1; j <= N; j++) {
-				if (check[i][j]) continue;
-				if (map[i][j] <= H) continue;
-				bfs(i, j);
-			}
-		
-		if (count_max < Count)
-			count_max = Count;
-		Count = 0;
-		memset(check, 0, sizeof(check));
-	}
 
-	printf("%d\n", count_max);
+  cin >> n;
 
-	return 0;
+  for(int i = 0; i < n; i++) {
+    for(int j = 0; j < n; j++) {
+      cin >> board[i][j];
+    }
+  }
+
+  int result = 1;
+  for(int height = 1; height < 100; height++) {
+    int count = 0;
+    bool visited[101][101] = {{ 0 }};
+    for(int i = 0; i < n; i++) {
+      for(int j = 0; j < n; j++) {
+        if (board[i][j] > height and not visited[i][j]) {
+          count++;
+          bfs(visited, i, j, height);
+        }
+      }
+    }
+
+    result = max(result, count);
+  }
+
+  cout << result << endl;
+
+  return 0;
 }
