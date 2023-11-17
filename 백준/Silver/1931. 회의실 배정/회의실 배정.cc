@@ -1,13 +1,13 @@
-#include <cstdio>
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
+#define INF 987654321
+typedef long long ll;
+
 using namespace std;
 
 vector<pair<int, int>> v;
 
-struct mycomp {
-	bool operator()(const pair<int, int> &a, const pair<int, int> &b) const {
+struct mycmp {
+	bool operator()(const pair<int, int> a, const pair<int, int> b) const {
 		if (a.second == b.second)
 			return a.first < b.first;
 		return a.second < b.second;
@@ -15,25 +15,33 @@ struct mycomp {
 };
 
 int main() {
-	int n, Count = 0, end, tmp1, tmp2;
+  ios::sync_with_stdio(false);
+  cin.tie(NULL);
+  cout.tie(NULL);
 
-	scanf("%d", &n);
+
+	int n, count = 0;
+
+  cin >> n;
 
 	for (int i = 0; i < n; i++) {
-		scanf("%d %d", &tmp1, &tmp2);
-		v.push_back(make_pair(tmp1, tmp2));
-	}
-	sort(v.begin(), v.end(), mycomp());
+		int tmp, tmp2;
+    cin >> tmp >> tmp2;
 
-	Count++; end = v[0].second;
-	for (int i = 1; i < n; i++) {
-		if (v[i].first >= end) {
-			end = v[i].second;
-			Count++;
+		v.push_back({tmp, tmp2});
+	}
+
+	sort(v.begin(), v.end(), mycmp());
+
+	int curTime = 0;
+	for (int i = 0; i < n; i++) {
+		if (curTime <= v[i].first) {
+			curTime = v[i].second;
+			count++;
 		}
 	}
 
-	printf("%d\n", Count);
+  cout << count << endl;
 
-	return 0;
+  return 0;
 }
