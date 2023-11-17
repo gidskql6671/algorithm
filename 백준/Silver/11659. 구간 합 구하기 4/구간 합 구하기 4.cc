@@ -1,29 +1,37 @@
-#include <iostream>
-#include <cstdio>
+#include <bits/stdc++.h>
+#define INF 987654321
+typedef long long ll;
+
 using namespace std;
 
-int map[100001];
+
+int arr[100001];
 int DP[100001];
 
 int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(NULL);
+  cout.tie(NULL);
+
+
 	int n, m;
+  cin >> n >> m;
 
-	scanf("%d %d", &n, &m);
+	for (int i = 1; i <= n; i++) {
+    cin >> arr[i];
+  }
 
-	for (int i = 1; i <= n; i++)
-		scanf("%d", &map[i]);
-	
-	DP[1] = map[1];
+	DP[1] = arr[1];
 	for (int i = 2; i <= n; i++) {
-		DP[i] = DP[i - 1] + map[i];
+		DP[i] = DP[i - 1] + arr[i];
 	}
 
 	for (int i = 0; i < m; i++) {
-		int a, b, sum = 0;
-		scanf("%d %d", &a, &b);
+		int a, b;
+    cin >> a >> b;
 
-		printf("%d\n", DP[b] - DP[a-1]);
+    cout << DP[b] - DP[a-1] << "\n";
 	}
 
-	return 0;
+  return 0;
 }
