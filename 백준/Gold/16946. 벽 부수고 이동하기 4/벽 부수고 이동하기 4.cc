@@ -1,118 +1,101 @@
 #include <bits/stdc++.h>
 #define INF 987654321
-using namespace std;
 typedef long long ll;
+using namespace std;
 
+
+int dy[] = {1, 0, -1, 0};
+int dx[] = {0, 1, 0, -1};
 
 int n, m;
-int arr[1001][1001];
-int visited[1001][1001];
-pair<int,int> Count[1001][1001];
-int result[1001][1001];
+int board[1001][1001], visited[1001][1001];
+int sizeOfArea[1000000];
+int countOfArea = 0;
 
-int section = 0;
-int dx[] = {0, 1, 0, -1};
-int dy[] = {-1, 0, 1, 0};
-
-bool check(int x, int y){
-    if (0 <= x && x < m && 0 <= y && y < n)
-        return true;
-    return false;
+bool isInside(int y, int x) {
+  return 0 <= y and y < n and 0 <= x and x < m;
 }
 
-// 한 공간에 몇개의 칸이 있는지 Count에 기록함
-void bfs(int sx, int sy){
-    queue<pair<int, int>> q;
-    queue<pair<int, int>> nq;
-    q.emplace(sx, sy);
-    
-    section++;
-    visited[sy][sx] = 1;
-    int count = 1;
-    
-    while(!q.empty()){
-        int x = q.front().first, y = q.front().second;
-        nq.emplace(x, y);
-        q.pop();
-        
-        for(int i = 0; i < 4; i++){
-            int nx = x + dx[i], ny = y + dy[i];
-            
-            if (check(nx, ny) && !visited[ny][nx] && arr[ny][nx] == 0){
-                visited[ny][nx] = 1;
-                q.emplace(nx, ny);
-                count++;
-            }
-        }
+int bfs(int sy, int sx) {
+  int count = 0;
+  queue<pair<int, int>> q;
+
+  q.push({sy, sx});
+  visited[sy][sx] = countOfArea;
+  count++;
+
+  while(not q.empty()) {
+    int y = q.front().first;
+    int x = q.front().second;
+    q.pop();
+
+    for(int i = 0; i < 4; i++) {
+      int ny = y + dy[i];
+      int nx = x + dx[i];
+
+      if (isInside(ny, nx) and board[ny][nx] == 0 and visited[ny][nx] == -1) {
+        count++;
+
+        q.push({ny, nx});
+        visited[ny][nx] = countOfArea;
+      }
     }
-    
-    while(!nq.empty()){
-        int x = nq.front().first, y = nq.front().second;
-        nq.pop();
-        
-        Count[y][x] = make_pair(section, count);
-    }
+  }
+
+  return count;
 }
 
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(NULL);
+  cout.tie(NULL);
 
-int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
-    
-    
-    cin >> n >> m;
-    
-    for(int i = 0; i < n; i++){
-        string str;
-        cin >> str;
-        
-        for(int j = 0; j < m; j++)
-            arr[i][j] = str[j] - '0';
+
+  cin >> n >> m;
+  for(int i = 0; i < n; i++) {
+    string line;
+    cin >> line;
+
+    for(int j = 0; j < m; j++) {
+      board[i][j] = line[j] - '0';
+      visited[i][j] = -1;
     }
-    
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++){
-            if (arr[i][j] == 0 && !visited[i][j]){
-                bfs(j, i);
-                result[i][j] = 0;
-            }
+  }
+
+  for(int i = 0; i < n; i++) {
+    for(int j = 0; j < m; j++) {
+      if (board[i][j] == 0 and visited[i][j] == -1) {
+        sizeOfArea[countOfArea++] = bfs(i, j);
+      }
+    }
+  }
+
+  for(int i = 0; i < n; i++) {
+    for(int j = 0; j < m; j++) {
+      if (board[i][j] == 1) {
+        set<int> areas;
+        for(int k = 0; k < 4; k++) {
+          int ny = i + dy[k];
+          int nx = j + dx[k];
+
+          if (isInside(ny, nx) and board[ny][nx] == 0) {
+            areas.insert(visited[ny][nx]);
+          }
         }
-    }
-    
-    for(int i = 0; i < n; i++)
-        for(int j = 0; j < m; j++){
-            if (arr[i][j] == 1){
-                int count = 1; // 자기자신도 포함되기에 시작은 1
-                
-                // 상하좌우의 빈 공간들의 총 개수를 더해줌
-                vector<int> checkSection;
-                for(int k = 0; k < 4; k++){
-                    int nx = j + dx[k], ny = i + dy[k];
-                    
-                    if (check(nx, ny)){
-                        
-                        // 이미 계산한 구획이면 continue
-                        bool flag = false;
-                        for(int l = 0; l < checkSection.size(); l++)
-                            if (Count[ny][nx].first == checkSection[l])
-                                flag = true;
-                        if (flag)
-                            continue;
-                        
-                        count += Count[ny][nx].second;
-                        checkSection.push_back(Count[ny][nx].first);
-                    }
-                }
-                result[i][j] = count % 10;
-            }
+
+        int count = 1;
+        for(int area : areas) {
+          count += sizeOfArea[area];
         }
-    
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++)
-            cout << result[i][j];
-        cout << "\n";
+
+        cout << (count % 10);
+      }
+      else {
+        cout << 0;
+      }
     }
-    
-    return 0;
+    cout << "\n";
+  }
+
+  return 0;
 }
